@@ -1,14 +1,14 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
+    <h2>栏目一</h2>
     <ul>
       <li>
         <a
           href="https://vuejs.org"
           target="_blank"
         >
-          Core Docs
+          歌手
         </a>
       </li>
       <li>
@@ -16,7 +16,7 @@
           href="https://forum.vuejs.org"
           target="_blank"
         >
-          Forum
+          歌曲
         </a>
       </li>
       <li>
@@ -24,7 +24,7 @@
           href="https://chat.vuejs.org"
           target="_blank"
         >
-          Community Chat
+          我喜欢
         </a>
       </li>
       <li>
@@ -32,27 +32,19 @@
           href="https://twitter.com/vuejs"
           target="_blank"
         >
-          Twitter
+          电台
         </a>
       </li>
       <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
     </ul>
-    <h2>Ecosystem</h2>
+    <h2>栏目二</h2>
     <ul>
       <li>
         <a
           href="http://router.vuejs.org/"
           target="_blank"
         >
-          vue-router
+          摇滚
         </a>
       </li>
       <li>
@@ -60,7 +52,7 @@
           href="http://vuex.vuejs.org/"
           target="_blank"
         >
-          vuex
+          轻音乐
         </a>
       </li>
       <li>
@@ -68,7 +60,7 @@
           href="http://vue-loader.vuejs.org/"
           target="_blank"
         >
-          vue-loader
+          说唱
         </a>
       </li>
       <li>
@@ -76,7 +68,7 @@
           href="https://github.com/vuejs/awesome-vue"
           target="_blank"
         >
-          awesome-vue
+          民谣
         </a>
       </li>
     </ul>
@@ -88,7 +80,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to imusic'
     }
   }
 }
