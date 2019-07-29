@@ -13,6 +13,13 @@ const portfinder = require('portfinder')
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
+
+// const express  = require('express')
+// var app = express()
+// var aipRoutes = express.Router()
+// const axios = require('axios')
+
+
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
@@ -22,6 +29,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // these devServer options should be customized in /config/index.js
   devServer: {
+     // disableHostCheck: true,
     clientLogLevel: 'warning',
     historyApiFallback: {
       rewrites: [
@@ -44,6 +52,18 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       poll: config.dev.poll,
     }
   },
+  // before(apiRoutes){
+  //   apiRoutes.get('https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',{
+
+  //   },(req,res)=>{
+  //     const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  //     axios.get(url,{
+  //       headers:{
+  //         referer:'https://c.y.qq.com/'
+  //       }
+  //     })
+  //   })
+  // },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
