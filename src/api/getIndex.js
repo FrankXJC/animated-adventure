@@ -1,12 +1,12 @@
 import axios from 'axios'
 import qs from 'qs'
 
-export let ERROR_OK = 0	  //   返回正常状态码
-export let NO_LYRIC = -1901 // 返回无歌词状态码 目前只用于singer.vue页面  后续有问题可能优化  联系作者邮箱：1666584574@qq.com
+export let ERROR_OK = 0 //   返回正常状态码
+export let NO_LYRIC = -1901 // 返回无歌词状态码 目前只用于singer.vue页面
 export let NO_FOUND = 404 // 状态码返回404
 // 推荐页接口
 
-export function getRecomment(callback) {
+export function getRecomment (callback) {
   axios('/api/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg', {
     params: {
       g_tk: 5381,
@@ -27,7 +27,7 @@ export function getRecomment(callback) {
 }
 
 // 排行榜接口
-export function getRanking(callback) {
+export function getRanking (callback) {
   let date = new Date().getTime()
   axios('/api/v8/fcg-bin/fcg_myqq_toplist.fcg', {
     params: {
@@ -39,7 +39,7 @@ export function getRanking(callback) {
       notice: 0,
       platform: 'h5',
       needNewCode: 1,
-      _: date,
+      _: date
     }
   }).then(data => {
     callback(data)
@@ -48,8 +48,8 @@ export function getRanking(callback) {
   })
 }
 
-//热门搜索接口
-export function getSearch(callback) {
+// 热门搜索接口
+export function getSearch (callback) {
   let date = new Date().getTime()
   axios('/api/splcloud/fcgi-bin/gethotkey.fcg', {
     params: {
@@ -70,8 +70,8 @@ export function getSearch(callback) {
   })
 }
 
-//搜索列表接口
-export function getSearchSongList(w, p, callback) {
+// 搜索列表接口
+export function getSearchSongList (w, p, callback) {
   let date = new Date().getTime()
   axios('/api/soso/fcgi-bin/search_for_qq_cp', {
     params: {
@@ -104,8 +104,8 @@ export function getSearchSongList(w, p, callback) {
   })
 }
 
-//热门歌单列表接口
-export function getSongList(disstid, song_begin, callback) {
+// 热门歌单列表接口
+export function getSongList (disstid, song_begin, callback) {
   let date = new Date().getTime()
   axios('/api/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg', {
     params: {
@@ -137,8 +137,8 @@ export function getSongList(disstid, song_begin, callback) {
   })
 }
 
-//排行榜歌单列表接口
-export function getToplist(topid, callback) {
+// 排行榜歌单列表接口
+export function getToplist (topid, callback) {
   let date = new Date().getTime()
   axios('/api/v8/fcg-bin/fcg_v8_toplist_cp.fcg', {
     params: {
@@ -163,8 +163,8 @@ export function getToplist(topid, callback) {
   })
 }
 
-//搜索歌单列表接口
-export function getSinger(singermid, begin, callback) {
+// 搜索歌单列表接口
+export function getSinger (singermid, begin, callback) {
   let date = new Date().getTime()
 
   axios('/api/v8/fcg-bin/fcg_v8_singer_track_cp.fcg', {
@@ -191,8 +191,8 @@ export function getSinger(singermid, begin, callback) {
   })
 }
 
-//获得songmid传过来获取对应的vkey  其实purl就是播放源了  拿到purl就可以了  可以不执行getVideo接口
-export function getvkey(songmid, callback) {
+// 获得songmid传过来获取对应的vkey  其实purl就是播放源了  拿到purl就可以了  可以不执行getVideo接口
+export function getvkey (songmid, callback) {
   axios.defaults.transformRequest = [function (data) {
     let ret = ''
     for (let it in data) {
@@ -218,7 +218,7 @@ export function getvkey(songmid, callback) {
   })
 }
 
-//获取视频地址接口  此接口可以使用  请使用getkey接口就可以获得视频播放地址  联系作者邮箱：1666584574@qq.com
+// 获取视频地址接口  此接口可以使用  请使用getkey接口就可以获得视频播放地址
 // export function getVideo(purl,callback){
 // 	axios.get(`http://183.60.23.28/amobile.music.tc.qq.com/${purl}`,{
 // 		headers: {
@@ -231,9 +231,8 @@ export function getvkey(songmid, callback) {
 // 	})
 // }
 
-
-//获取歌词接口
-export function getLyric(musicid, callback) {
+// 获取歌词接口
+export function getLyric (musicid, callback) {
   let date = new Date().getTime()
   axios('/api/lyric/fcgi-bin/fcg_query_lyric.fcg', {
     params: {
@@ -258,9 +257,8 @@ export function getLyric(musicid, callback) {
   })
 }
 
-
-//专辑歌单接口
-export function getAlbum(albummid, callback) {
+// 专辑歌单接口
+export function getAlbum (albummid, callback) {
   let date = new Date().getTime()
   axios('/api/v8/fcg-bin/fcg_v8_album_info_cp.fcg', {
     params: {
@@ -282,8 +280,8 @@ export function getAlbum(albummid, callback) {
   })
 }
 
-//专辑其他歌单接口
-export function getOtherAlbum(albummid, callback) {
+// 专辑其他歌单接口
+export function getOtherAlbum (albummid, callback) {
   let date = new Date().getTime()
   axios('/api/v8/fcg-bin/fcg_v8_album_info_cp.fcg', {
     params: {
@@ -305,9 +303,8 @@ export function getOtherAlbum(albummid, callback) {
   })
 }
 
-
-//歌曲详情接口  视频、音乐
-export function getmusicu(songid, callback) {
+// 歌曲详情接口  视频、音乐
+export function getmusicu (songid, callback) {
   axios.defaults.transformRequest = [function (data) {
     let ret = ''
     for (let it in data) {
@@ -333,8 +330,8 @@ export function getmusicu(songid, callback) {
   })
 }
 
-//获取评论接口
-export function getreplay(topid, callback) {
+// 获取评论接口
+export function getreplay (topid, callback) {
   let date = new Date().getTime()
   axios('/api/base/fcgi-bin/fcg_global_comment_h5.fcg', {
     params: {
@@ -370,8 +367,8 @@ export function getreplay(topid, callback) {
   })
 }
 
-//获取专辑评论接口
-export function getalbumreplay(topid, callback) {
+// 获取专辑评论接口
+export function getalbumreplay (topid, callback) {
   let date = new Date().getTime()
   axios('/api/base/fcgi-bin/fcg_global_comment_h5.fcg', {
     params: {
@@ -407,9 +404,8 @@ export function getalbumreplay(topid, callback) {
   })
 }
 
-
-//获取音频vkey(获取的purl是完整链接)接口
-export function getaudiovkey(songmid, callback) {
+// 获取音频vkey(获取的purl是完整链接)接口
+export function getaudiovkey (songmid, callback) {
   axios('/vkey/cgi-bin/musicu.fcg', {
     params: {
       '-': 'getplaysongvkey18692067669581247',
@@ -434,8 +430,8 @@ export function getaudiovkey(songmid, callback) {
   })
 }
 
-//获取电台音频列表 随机20条
-export function getradiosonglist(callback) {
+// 获取电台音频列表 随机20条
+export function getradiosonglist (callback) {
   let date = new Date().getTime()
   axios('/api/v8/fcg-bin/fcg_v8_radiosonglist.fcg', {
     params: {
@@ -460,8 +456,8 @@ export function getradiosonglist(callback) {
   })
 }
 
-//获取歌曲视频
-export function getplaysongVideoUrl(vid, callback) {
+// 获取歌曲视频
+export function getplaysongVideoUrl (vid, callback) {
   let date = new Date().getTime()
   axios('/vkey/cgi-bin/musicu.fcg', {
     params: {
@@ -485,8 +481,8 @@ export function getplaysongVideoUrl(vid, callback) {
 }
 
 // 获取视频mv.vue
-//获取歌曲视频
-export function getmv(vid, callback) {
+// 获取歌曲视频
+export function getmv (vid, callback) {
   let date = new Date().getTime()
   axios('/vkey/cgi-bin/musicu.fcg', {
     params: {
@@ -512,8 +508,8 @@ export function getmv(vid, callback) {
   })
 }
 
-//获取音频vkey(获取的purl是完整链接)接口
-export function getmvkey(songmid, callback) {
+// 获取音频vkey(获取的purl是完整链接)接口
+export function getmvkey (songmid, callback) {
   let date = new Date().getTime()
   axios('/vkey/cgi-bin/musicu.fcg', {
     params: {
@@ -536,8 +532,8 @@ export function getmvkey(songmid, callback) {
   })
 }
 
-//获取专辑评论接口
-export function getmvreplay(topid, biztype, callback) {
+// 获取专辑评论接口
+export function getmvreplay (topid, biztype, callback) {
   let date = new Date().getTime()
   axios('/api/base/fcgi-bin/fcg_global_comment_h5.fcg', {
     params: {

@@ -4,14 +4,14 @@
   </div>
 </template>
 <script>
-  import components from 'components/components'
+import components from 'components/components'
 
-  export default {
-    name: 'app',
-    components: {
-      components
-    }
+export default {
+  name: 'app',
+  components: {
+    components
   }
+}
 
 </script>
 <style>
@@ -192,7 +192,6 @@ export default {
     }
 }
 </script>
-
 
 <style scoped>
 .bscroll{
