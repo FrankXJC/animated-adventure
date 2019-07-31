@@ -3,9 +3,9 @@
 		<!-- qqmusic -->
 		<div class="brand">
 			<img class='brand__logo' :src="rohlinLogo" alt="">
-			<p class="brand__name">开发者rohlin-vue首次实战模仿</p>
-			<p class="brand__name">联系邮箱:1666584574@qq.com</p>
-		</div>	
+			<p class="brand__name">开发者frank-vue</p>
+			<p class="brand__name">联系邮箱:1147296957@qq.com</p>
+		</div>
 	</div>
 </template>
 <script>
