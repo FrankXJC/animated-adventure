@@ -1,13 +1,13 @@
 <template>
-	<div id='barlist'>
-		
-	</div>
+  <div id='barlist'>
+
+  </div>
 </template>
 <script>
-	export default{
-		name:'barlist'
-	}
+export default {
+  name: 'barlist'
+}
 </script>
 <style>
-	
+
 </style>
