@@ -120,620 +120,620 @@
 </template>
 <script>
 import {
-    getAlbum,
-    getOtherAlbum,
-    getvkey,
-    getLyric,
-    ERROR_OK,
-    getalbumreplay,
-    NO_LYRIC,
-    NO_FOUND
-  } from '@/api/getIndex'
-  import BScroll from 'better-scroll'
-  import $ from 'jquery'
+  getAlbum,
+  getOtherAlbum,
+  getvkey,
+  getLyric,
+  ERROR_OK,
+  getalbumreplay,
+  NO_LYRIC,
+  NO_FOUND
+} from '@/api/getIndex'
+import BScroll from 'better-scroll'
+import $ from 'jquery'
 
 
-  let stop = null
-  export default {
-    name: 'album',
-    data() {
-      return {
-        album: {},
-        geshoutx: '',
-        begin: 0,//默认0  加载15 ==> 30 ==> 45 这样自增15依次记载数据
-        noLoading: 0,
-        developer: false,
-        songlist: [],
-        begin: 0,//加载更多歌曲数据  0-->15-->30
-        vkey: '',//动态唯一标识（用来拿取视频）
-        filename: '',//音频资源路径（用来拿取视频）
-        playUrl: '',
-        musicu: true,//允许操作musicu文件
-        midurlinfo: [],//没错，vkey就在里面,每次加载歌曲进行叠加
-        songmid: [],//用于存储songmid  也就是发送到后端获取到vkey必要参数的  vkey才能获取到音频
-        iconVip: require('@/assets/icon_vip.png'),//vip图标
-        hint: true,
-        playing: false,
-        playpause: false,
-        title: '',//歌曲名称
-        lyric: [],//歌词
-        arrLyric: '',
-        stop: null, //歌词滚动的定时器
-        stop2: null, //用于监听歌曲播放完成停止播放的定时器
-        iValue: 0,	//记录下标
-        transform: 28, //记录滚动距离
-        transform3d: {
-          'transform': 'translate3d(0px, 28px, 0px)'
-        },//歌词滚动样式
-        transition: {
-          'transition': 'all 0 ease 0'
-        },
-        recodemid: 0,
-        recodeflag: 0,
-        recodetitle: 0,
-        recodemusicid: 0,
-        autoplayIndex: 0,//自动"播放全部"按钮下标
-        isCurrentSong: true,
-        other: "false",
-        iconVip: require('@/assets/icon_vip.png'),//vip图标
-        backTime: 5,//页面404 倒计时
-        NO_FOUND: true,//404页面和专辑页面切换
-        comment: null,//评论
-        NO_FOUND_img: require('@/assets/nofound.png') //没有发现专辑数据显示的图标
-      }
-    },
-    watch: {
-      '$route'(to, from) {
-        stop = null
-        let that = this
-        that.loadData()
-      }
-    },
-    mounted() {
+let stop = null
+export default {
+  name: 'album',
+  data() {
+    return {
+      album: {},
+      geshoutx: '',
+      begin: 0,//默认0  加载15 ==> 30 ==> 45 这样自增15依次记载数据
+      noLoading: 0,
+      developer: false,
+      songlist: [],
+      begin: 0,//加载更多歌曲数据  0-->15-->30
+      vkey: '',//动态唯一标识（用来拿取视频）
+      filename: '',//音频资源路径（用来拿取视频）
+      playUrl: '',
+      musicu: true,//允许操作musicu文件
+      midurlinfo: [],//没错，vkey就在里面,每次加载歌曲进行叠加
+      songmid: [],//用于存储songmid  也就是发送到后端获取到vkey必要参数的  vkey才能获取到音频
+      iconVip: require('@/assets/icon_vip.png'),//vip图标
+      hint: true,
+      playing: false,
+      playpause: false,
+      title: '',//歌曲名称
+      lyric: [],//歌词
+      arrLyric: '',
+      stop: null, //歌词滚动的定时器
+      stop2: null, //用于监听歌曲播放完成停止播放的定时器
+      iValue: 0,	//记录下标
+      transform: 28, //记录滚动距离
+      transform3d: {
+        'transform': 'translate3d(0px, 28px, 0px)'
+      },//歌词滚动样式
+      transition: {
+        'transition': 'all 0 ease 0'
+      },
+      recodemid: 0,
+      recodeflag: 0,
+      recodetitle: 0,
+      recodemusicid: 0,
+      autoplayIndex: 0,//自动"播放全部"按钮下标
+      isCurrentSong: true,
+      other: "false",
+      iconVip: require('@/assets/icon_vip.png'),//vip图标
+      backTime: 5,//页面404 倒计时
+      NO_FOUND: true,//404页面和专辑页面切换
+      comment: null,//评论
+      NO_FOUND_img: require('@/assets/nofound.png') //没有发现专辑数据显示的图标
+    }
+  },
+  watch: {
+    '$route'(to, from) {
+      stop = null
       let that = this
       that.loadData()
+    }
+  },
+  mounted() {
+    let that = this
+    that.loadData()
 
-    },
-    destroyed() {
+  },
+  destroyed() {
+    let that = this
+    that.clear()
+    console.log('------------destroyed')
+  },
+  methods: {
+    pageBack() {
       let that = this
-      that.clear()
-      console.log('------------destroyed')
+      that.$Indicator.close()
+      that.NO_FOUND = false
+      stop = setInterval(() => {
+        that.backTime = that.backTime - 1
+        if (that.backTime <= 0) {
+          clearInterval(stop)
+          that.$router.go(-1)
+          that.backTime = 5//页面404 倒计时
+          that.NO_FOUND = true//404页面和专辑页面切换
+          return;
+        }
+      }, 1000)
     },
-    methods: {
-      pageBack() {
-        let that = this
-        that.$Indicator.close()
-        that.NO_FOUND = false
-        stop = setInterval(() => {
-          that.backTime = that.backTime - 1
-          if (that.backTime <= 0) {
-            clearInterval(stop)
-            that.$router.go(-1)
-            that.backTime = 5//页面404 倒计时
-            that.NO_FOUND = true//404页面和专辑页面切换
-            return;
-          }
-        }, 1000)
-      },
-      loadData() {
-        let that = this
+    loadData() {
+      let that = this
 
-        that.clear()
+      that.clear()
+      that.$Indicator.open({
+        spinnerType: 'triple-bounce'
+      })
+      that.singermid = that.$route.query.id
+
+      if (that.$route.query.other) {
+        that.other = that.$route.query.other
+      }
+      //判断是否是该歌手其他专辑
+      if (that.other == "true") { //true
+        that._getOtherAlbum()
+      } else if (that.other == "false") {//false
+        that._getAlbum()
+      } else {
+        that.$Toast('url参数错误')
+        console.log("other的值不正确  只能是true或者false")
+      }
+    },
+    clear() {
+      let that = this
+      that.$Indicator.close()
+      that.album = ""
+      that.hint = true
+      that.backTime = 5//页面404 倒计时
+      that.NO_FOUND = true// 404页面和专辑页面切换
+      // console.log(that.$refs.myaudio.paused)
+      if (that.$refs.myaudio && !that.$refs.myaudio.paused) {
+        that.$refs.myaudio.pause()
+      }
+      clearInterval(stop)
+      clearInterval(that.stop)
+      clearInterval(that.stop2)
+      that.begin = 0//默认0  加载15 ==> 30 ==> 45 这样自增15依次记载数据
+      that.noLoading = 0
+      that.developer = false
+      that.playpause = false
+      that.lyric = []
+      that.playing = false
+      that.comment = {}
+    },
+    _getAlbum() {
+      console.log("false")
+      let that = this
+      getAlbum(that.singermid, res => {
+        if (res.data.code == ERROR_OK) {
+          that.album = res.data.data
+
+          //获取mid  存入songmid变量
+          let songlist = res.data.data.list
+          let tempSongmid = [] //临时存储songmid
+
+          for (let i in songlist) {
+            tempSongmid.push(songlist[i].songmid)
+          }
+          that.songmid = tempSongmid
+
+          that._getalbumreplay(res.data.data.id)
+
+          //首次加载  获取key
+          getvkey(JSON.stringify(that.songmid), res => {
+            if (res.data.code == ERROR_OK) {
+              that.midurlinfo = res.data.req_0.data.midurlinfo
+              that.scrollFun()
+            }
+            that.$Indicator.close()
+          })
+
+        } else if (res.data.code == NO_FOUND) {
+          that.pageBack()
+        }
+      })
+    },
+    _getalbumreplay(topid) {
+      let that = this
+      getalbumreplay(topid, res => {
+        if (res.data.code == ERROR_OK) {
+          that.comment = res.data.comment
+        }
+      })
+    },
+    formatN(html) {
+      return html.replace(/\\n/g, "\n")
+    },
+    clickView() {
+      let that = this
+      that.$Toast('请在app操作')
+    },
+    time(now) {
+      let riqi = new Date(parseInt(now + '000'))
+      var year = riqi.getFullYear();
+      var month = riqi.getMonth() + 1;
+      var date = riqi.getDate();
+      var hour = riqi.getHours();
+      var minute = riqi.getMinutes();
+      var second = riqi.getSeconds();
+      return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
+    },
+    _getOtherAlbum() {
+      console.log("true")
+      let that = this
+      getOtherAlbum(that.singermid, res => {
+        if (res.data.code == ERROR_OK) {
+          that.album = res.data.data
+
+          //获取mid  存入songmid变量
+          let songlist = res.data.data.list
+          let tempSongmid = [] //临时存储songmid
+
+          for (let i in songlist) {
+            tempSongmid.push(songlist[i].songmid)
+          }
+          that.songmid = tempSongmid
+
+          that._getalbumreplay(res.data.data.id)
+          //首次加载  获取key
+          getvkey(JSON.stringify(that.songmid), res => {
+            if (res.data.code == ERROR_OK) {
+              that.midurlinfo = res.data.req_0.data.midurlinfo
+              that.scrollFun()
+            }
+            that.$Indicator.close()
+          })
+
+        } else if (res.data.code == NO_FOUND) {
+          that.pageBack()
+        }
+      })
+    },
+    gotoablum(albumid) {
+      let that = this
+      that.$router.push({
+        path: '/album',
+        query: {
+          id: albumid,
+          other: "true"
+        }
+      })
+      // that.$router.go(0)
+    },
+    scrollFun() {
+      let that = this
+      that.$nextTick(() => {
+        // setTimeout(()=>{
+        // 初始化better-scroll滚动
+        that.scroll = new BScroll(that.$refs.bscroll, {
+          click: true,
+          scrollY: true,
+          probeType: 1,
+          bounce: true,
+          pullUpLoad: {
+            threshold: 0, // 当上拉到超过底部 0px 时，
+          }
+        })
+        console.log("scrollFun")
+        setTimeout(() => {
+          that.$refs.bscroll.style.height = (document.body.clientHeight - that.$refs.songlisttop.clientHeight) + 'px'
+          that.scroll.refresh()
+          this.scroll.on('scroll', (pos) => {
+            if (pos.y > 50) {
+              that.developer = true
+            } else {
+              that.developer = false
+            }
+          })
+        }, 200)
+        // },1000)
+      })
+    },
+    favorites() {
+      let that = this
+      if (that.hint) {
+        that.hint = false
+        this.$Toast('收藏?不存在的,开发者说我只是个挂件')
+      } else {
+        this.$Toast('哎呀，你别再点我了~')
+      }
+    },
+    //播放全部
+    playAll() {
+      let that = this
+      // 获得第一首
+      let firstsonglist = that.album.list
+      that.clickPlay(firstsonglist[0].songmid, firstsonglist[0].alertid == 0, firstsonglist[0].songname, firstsonglist[0].songid)
+    },
+    /*
+              mid:匹配正确则拿到当前对象数据中的purl，purl也就是播放源地址  拿到以后就可以拼接使用
+              flag：用于控制歌曲是否能允许播放
+              title:歌曲名称
+              musicid：用来获取歌词
+          */
+    clickPlay(mid, flag, title, musicid) {
+      let that = this
+      if (!flag) {
+        // 拿到播放第几首的下标
+        let currentcdlist = that.album.list
+        for (let i in currentcdlist) {
+          if (currentcdlist[i].songmid == mid) {
+            that.autoplayIndex = i
+          }
+        }
+        let midurlinfo = that.midurlinfo
         that.$Indicator.open({
           spinnerType: 'triple-bounce'
         })
-        that.singermid = that.$route.query.id
-
-        if (that.$route.query.other) {
-          that.other = that.$route.query.other
-        }
-        //判断是否是该歌手其他专辑
-        if (that.other == "true") { //true
-          that._getOtherAlbum()
-        } else if (that.other == "false") {//false
-          that._getAlbum()
-        } else {
-          that.$Toast('url参数错误')
-          console.log("other的值不正确  只能是true或者false")
-        }
-      },
-      clear() {
-        let that = this
-        that.$Indicator.close()
-        that.album = ""
-        that.hint = true
-        that.backTime = 5//页面404 倒计时
-        that.NO_FOUND = true//404页面和专辑页面切换
-        // console.log(that.$refs.myaudio.paused)
-        if (that.$refs.myaudio && !that.$refs.myaudio.paused) {
-          that.$refs.myaudio.pause()
-        }
-        clearInterval(stop)
-        clearInterval(that.stop)
-        clearInterval(that.stop2)
-        that.begin = 0//默认0  加载15 ==> 30 ==> 45 这样自增15依次记载数据
-        that.noLoading = 0
-        that.developer = false
-        that.playpause = false
-        that.lyric = []
-        that.playing = false
-        that.comment = {}
-      },
-      _getAlbum() {
-        console.log("false")
-        let that = this
-        getAlbum(that.singermid, res => {
-          if (res.data.code == ERROR_OK) {
-            that.album = res.data.data
-
-            //获取mid  存入songmid变量
-            let songlist = res.data.data.list
-            let tempSongmid = [] //临时存储songmid
-
-            for (let i in songlist) {
-              tempSongmid.push(songlist[i].songmid)
-            }
-            that.songmid = tempSongmid
-
-            that._getalbumreplay(res.data.data.id)
-
-            //首次加载  获取key
-            getvkey(JSON.stringify(that.songmid), res => {
-              if (res.data.code == ERROR_OK) {
-                that.midurlinfo = res.data.req_0.data.midurlinfo
-                that.scrollFun()
-              }
+        for (let i in midurlinfo) {
+          if (midurlinfo[i].songmid == mid) {
+            if (midurlinfo[i].purl && midurlinfo[i].purl != '') {
+              console.log('jinlaile')
+              that.isCurrentSong = true
+              //拿到请求地址和参数
+              that.playUrl = `http://183.60.23.28/amobile.music.tc.qq.com/${midurlinfo[i].purl}`;
+            } else {
+              that.isCurrentSong = false
               that.$Indicator.close()
-            })
+              that.$Toast({
+                message: '付费歌曲,自动播放下一首',
+                duration: 3000
+              })
 
-          } else if (res.data.code == NO_FOUND) {
-            that.pageBack()
-          }
-        })
-      },
-      _getalbumreplay(topid) {
-        let that = this
-        getalbumreplay(topid, res => {
-          if (res.data.code == ERROR_OK) {
-            that.comment = res.data.comment
-          }
-        })
-      },
-      formatN(html) {
-        return html.replace(/\\n/g, "\n")
-      },
-      clickView() {
-        let that = this
-        that.$Toast('请在app操作')
-      },
-      time(now) {
-        let riqi = new Date(parseInt(now + '000'))
-        var year = riqi.getFullYear();
-        var month = riqi.getMonth() + 1;
-        var date = riqi.getDate();
-        var hour = riqi.getHours();
-        var minute = riqi.getMinutes();
-        var second = riqi.getSeconds();
-        return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-      },
-      _getOtherAlbum() {
-        console.log("true")
-        let that = this
-        getOtherAlbum(that.singermid, res => {
-          if (res.data.code == ERROR_OK) {
-            that.album = res.data.data
-
-            //获取mid  存入songmid变量
-            let songlist = res.data.data.list
-            let tempSongmid = [] //临时存储songmid
-
-            for (let i in songlist) {
-              tempSongmid.push(songlist[i].songmid)
-            }
-            that.songmid = tempSongmid
-
-            that._getalbumreplay(res.data.data.id)
-            //首次加载  获取key
-            getvkey(JSON.stringify(that.songmid), res => {
-              if (res.data.code == ERROR_OK) {
-                that.midurlinfo = res.data.req_0.data.midurlinfo
-                that.scrollFun()
+              //播放下一首
+              //判断是否有下一首
+              if (that.autoplayIndex < currentcdlist.length - 1) {
+                that.autoplayIndex = parseInt(that.autoplayIndex) + 1
+                //调用下一首
+                that.clickPlay(currentcdlist[that.autoplayIndex].songmid, false, currentcdlist[that.autoplayIndex].songname, currentcdlist[that.autoplayIndex].songid)
               }
-              that.$Indicator.close()
-            })
-
-          } else if (res.data.code == NO_FOUND) {
-            that.pageBack()
-          }
-        })
-      },
-      gotoablum(albumid) {
-        let that = this
-        that.$router.push({
-          path: '/album',
-          query: {
-            id: albumid,
-            other: "true"
-          }
-        })
-        // that.$router.go(0)
-      },
-      scrollFun() {
-        let that = this
-        that.$nextTick(() => {
-          // setTimeout(()=>{
-          // 初始化better-scroll滚动
-          that.scroll = new BScroll(that.$refs.bscroll, {
-            click: true,
-            scrollY: true,
-            probeType: 1,
-            bounce: true,
-            pullUpLoad: {
-              threshold: 0, // 当上拉到超过底部 0px 时，
             }
-          })
-          console.log("scrollFun")
-          setTimeout(() => {
-            that.$refs.bscroll.style.height = (document.body.clientHeight - that.$refs.songlisttop.clientHeight) + 'px'
-            that.scroll.refresh()
-            this.scroll.on('scroll', (pos) => {
-              if (pos.y > 50) {
-                that.developer = true
-              } else {
-                that.developer = false
-              }
-            })
-          }, 200)
-          // },1000)
-        })
-      },
-      favorites() {
-        let that = this
-        if (that.hint) {
-          that.hint = false
-          this.$Toast('收藏?不存在的,开发者说我只是个挂件')
-        } else {
-          this.$Toast('哎呀，你别再点我了~')
+          }
         }
-      },
-      //播放全部
-      playAll() {
-        let that = this
-        // 获得第一首
-        let firstsonglist = that.album.list
-        that.clickPlay(firstsonglist[0].songmid, firstsonglist[0].alertid == 0, firstsonglist[0].songname, firstsonglist[0].songid)
-      },
-      /*
-                mid:匹配正确则拿到当前对象数据中的purl，purl也就是播放源地址  拿到以后就可以拼接使用
-                flag：用于控制歌曲是否能允许播放
-                title:歌曲名称
-                musicid：用来获取歌词
-            */
-      clickPlay(mid, flag, title, musicid) {
-        let that = this
-        if (!flag) {
-          // 拿到播放第几首的下标
-          let currentcdlist = that.album.list
-          for (let i in currentcdlist) {
-            if (currentcdlist[i].songmid == mid) {
-              that.autoplayIndex = i
-            }
-          }
-          let midurlinfo = that.midurlinfo
-          that.$Indicator.open({
-            spinnerType: 'triple-bounce'
-          })
-          for (let i in midurlinfo) {
-            if (midurlinfo[i].songmid == mid) {
-              if (midurlinfo[i].purl && midurlinfo[i].purl != '') {
-                console.log('jinlaile')
-                that.isCurrentSong = true
-                //拿到请求地址和参数
-                that.playUrl = `http://183.60.23.28/amobile.music.tc.qq.com/${midurlinfo[i].purl}`;
-              } else {
-                that.isCurrentSong = false
+        //判断播放源存在
+        if (that.playUrl != '' && that.isCurrentSong) {
+
+          // 调用接口拿到歌词
+          getLyric(musicid, res => {
+            if (res.data && res.data != undefined) {
+              //成功拿到的歌词数据（res）有函数包着 只能用字符串截取把函数去掉  并转成json格式  JSON.parse()
+              let data = JSON.parse(res.data.substring(res.data.indexOf('(') + 1, res.data.length - 1))
+              //拿到数据 开始判断data.code状态是否等于ERROR_OK
+              if (data.code == ERROR_OK) {
+                clearInterval(that.stop)
+                that.playpause = false  //显示暂停，重新选曲
+
+                let li = $('.gedan_list>li')
+                $(li).removeClass('current')
+
+                $(li).eq(that.autoplayIndex).addClass('current')
+
+
+                that.transition = {
+                  'transition': 'all 0 ease 0'
+                }
+                that.transform = 28 //记录滚动距离
+
+                //我做了限制  歌词拿到 才能播放
+                // 记录下来，为了播放完成以后重新播放使用
+                that.recodemid = mid
+                that.recodeflag = flag
+                that.recodetitle = title
+                that.recodemusicid = musicid
+
+                //拿到的歌词时间用HTML标签转义
+                that.$refs.zhuanyi.innerHTML = data.lyric
+                //从HTML标签获得转义后的歌词数据并清空HTML的时间歌词数据
+                let divlyric = that.$refs.zhuanyi.innerHTML
+                that.$refs.zhuanyi.innerHTML = ""
+                let lyrictime = [] //用数组存储歌词和时间
+                //提取歌词
+                let temparrLyric = divlyric.toString().split(/\[\d\d\:\d\d.\d\d\]/ig).splice(1);
+                //提取时间  并把时间传进timeTmm函数转换成毫秒数
+                var mm = that.timeTmm(divlyric.toString().match(/\[\d\d\:\d\d.\d\d\]/ig));
+
+                for (let i in temparrLyric) {
+                  //筛选有歌词不等于换行  因为有些歌词是空的 是一个换行符 则需要去除
+                  if (temparrLyric[i] != '\n') {
+                    lyrictime.push({
+                      'lyric': temparrLyric[i],
+                      'time': mm[i]
+                    })
+                  }
+                }
+                //歌词时间存进data
+                that.arrLyric = lyrictime
+
+                //设置播放滚动特效
+                that.transition = {
+                  'transition': 'transform 0.3s ease-out 0s'
+                }
+
+                let iValue = that.iValue = 0	//记录下标
+
+
+                that.title = title //当前点击的歌曲名称
+                that.$refs.myaudio.play()//音频开始播放
+                that.playing = true //显示播放容器
+                that.playpause = true //显示播放按钮
                 that.$Indicator.close()
-                that.$Toast({
-                  message: '付费歌曲,自动播放下一首',
-                  duration: 3000
-                })
+                let lyrictimeLength = lyrictime.length //获取歌词数组的长度
+                //判断音频播放以后执行
+                if (!that.$refs.myaudio.paused) {
+                  that.stop = setInterval(() => {
+                    //判断音频暂停再播放以后才能进入if
+                    if (that.playpause) {
+                      //判断歌词滚动完成则不允许进入
+                      if (iValue < lyrictimeLength) {
+                        //判断播放时间到了就往上滚动
+                        if (that.$refs.myaudio.currentTime > lyrictime[iValue].time) {
+                          ++iValue
+                          that.transform = that.transform - 28
+                          console.log(that.transform)
+                          that.transform3d = {
+                            'transform': `translate3d(0px, ${that.transform}px, 0px)`
+                          }
+                        }
+                      }
+                      //判断播放完成就播放下一集
+                      if (that.$refs.myaudio.ended) {
+                        console.log('本集播放完成')
+                        that.playpause = false
+                        that.$refs.myaudio.pause()
+                        clearInterval(that.stop) //播放完成 清除定时器
 
-                //播放下一首
-                //判断是否有下一首
-                if (that.autoplayIndex < currentcdlist.length - 1) {
-                  that.autoplayIndex = parseInt(that.autoplayIndex) + 1
-                  //调用下一首
-                  that.clickPlay(currentcdlist[that.autoplayIndex].songmid, false, currentcdlist[that.autoplayIndex].songname, currentcdlist[that.autoplayIndex].songid)
+                        console.log('即将播放下一首')
+
+                        //判断是否有下一首
+                        if (that.autoplayIndex < currentcdlist.length - 1) {
+                          that.autoplayIndex = parseInt(that.autoplayIndex) + 1
+                          //调用下一首
+                          that.clickPlay(currentcdlist[that.autoplayIndex].songmid, false, currentcdlist[that.autoplayIndex].songname, currentcdlist[that.autoplayIndex].songid)
+                        } else {
+                          that.$Toast({
+                            message: '歌曲播放完成啦',
+                            duration: 3500
+                          })
+                        }
+                      }
+                    }
+                  }, 20)
                 }
+              } else if (data.code == NO_LYRIC) {
+                clearInterval(that.stop)
+                that.playpause = false  //显示暂停，重新选曲
+
+                let li = $('.gedan_list>li')
+                $(li).removeClass('current')
+
+                $(li).eq(that.autoplayIndex).addClass('current')
+
+
+                that.transition = {
+                  'transition': 'all 0 ease 0'
+                }
+                // that.transform = 28 //记录滚动距离
+
+                //我做了限制  歌词拿到 才能播放
+                // 记录下来，为了播放完成以后重新播放使用
+                that.recodemid = mid
+                that.recodeflag = flag
+                that.recodetitle = title
+                that.recodemusicid = musicid
+
+                //歌词时间存进data
+                that.arrLyric = [{
+                  time: '该歌曲暂无歌词',
+                  lyric: '该歌曲暂无歌词'
+                }]
+
+                //设置播放滚动特效
+                that.transition = {
+                  'transition': 'transform 0.3s ease-out 0s'
+                }
+
+                let iValue = that.iValue = 0	//记录下标
+
+
+                that.title = title //当前点击的歌曲名称
+                that.$refs.myaudio.play()//音频开始播放
+                that.playing = true //显示播放容器
+                that.playpause = true //显示播放按钮
+                that.$Indicator.close()
+
+                //判断音频播放以后执行
+                if (!that.$refs.myaudio.paused) {
+                  that.stop = setInterval(() => {
+                    //判断音频暂停再播放以后才能进入if
+                    if (that.playpause) {
+                      //判断播放完成就播放下一集
+                      if (that.$refs.myaudio.ended) {
+                        console.log('本集播放完成')
+                        that.playpause = false
+                        that.$refs.myaudio.pause()
+                        clearInterval(that.stop) //播放完成 清除定时器
+
+                        console.log('即将播放下一首')
+
+                        //判断是否有下一首
+                        if (that.autoplayIndex < currentcdlist.length - 1) {
+                          that.autoplayIndex = parseInt(that.autoplayIndex) + 1
+                          //调用下一首
+                          that.clickPlay(currentcdlist[that.autoplayIndex].musicData.songmid, currentcdlist[0].isnew == 0 && currentcdlist[0].musicData.alertid == 0, currentcdlist[that.autoplayIndex].musicData.songname, currentcdlist[that.autoplayIndex].musicData.songid)
+                        } else {
+                          that.$Toast({
+                            message: '歌曲播放完成啦',
+                            duration: 3500
+                          })
+                        }
+                      }
+                    }
+                  }, 20)
+                }
+
               }
             }
-          }
-          //判断播放源存在
-          if (that.playUrl != '' && that.isCurrentSong) {
-
-            // 调用接口拿到歌词
-            getLyric(musicid, res => {
-              if (res.data && res.data != undefined) {
-                //成功拿到的歌词数据（res）有函数包着 只能用字符串截取把函数去掉  并转成json格式  JSON.parse()
-                let data = JSON.parse(res.data.substring(res.data.indexOf('(') + 1, res.data.length - 1))
-                //拿到数据 开始判断data.code状态是否等于ERROR_OK
-                if (data.code == ERROR_OK) {
-                  clearInterval(that.stop)
-                  that.playpause = false  //显示暂停，重新选曲
-
-                  let li = $('.gedan_list>li')
-                  $(li).removeClass('current')
-
-                  $(li).eq(that.autoplayIndex).addClass('current')
-
-
-                  that.transition = {
-                    'transition': 'all 0 ease 0'
-                  }
-                  that.transform = 28 //记录滚动距离
-
-                  //我做了限制  歌词拿到 才能播放
-                  // 记录下来，为了播放完成以后重新播放使用
-                  that.recodemid = mid
-                  that.recodeflag = flag
-                  that.recodetitle = title
-                  that.recodemusicid = musicid
-
-                  //拿到的歌词时间用HTML标签转义
-                  that.$refs.zhuanyi.innerHTML = data.lyric
-                  //从HTML标签获得转义后的歌词数据并清空HTML的时间歌词数据
-                  let divlyric = that.$refs.zhuanyi.innerHTML
-                  that.$refs.zhuanyi.innerHTML = ""
-                  let lyrictime = [] //用数组存储歌词和时间
-                  //提取歌词
-                  let temparrLyric = divlyric.toString().split(/\[\d\d\:\d\d.\d\d\]/ig).splice(1);
-                  //提取时间  并把时间传进timeTmm函数转换成毫秒数
-                  var mm = that.timeTmm(divlyric.toString().match(/\[\d\d\:\d\d.\d\d\]/ig));
-
-                  for (let i in temparrLyric) {
-                    //筛选有歌词不等于换行  因为有些歌词是空的 是一个换行符 则需要去除
-                    if (temparrLyric[i] != '\n') {
-                      lyrictime.push({
-                        'lyric': temparrLyric[i],
-                        'time': mm[i]
-                      })
-                    }
-                  }
-                  //歌词时间存进data
-                  that.arrLyric = lyrictime
-
-                  //设置播放滚动特效
-                  that.transition = {
-                    'transition': 'transform 0.3s ease-out 0s'
-                  }
-
-                  let iValue = that.iValue = 0	//记录下标
-
-
-                  that.title = title //当前点击的歌曲名称
-                  that.$refs.myaudio.play()//音频开始播放
-                  that.playing = true //显示播放容器
-                  that.playpause = true //显示播放按钮
-                  that.$Indicator.close()
-                  let lyrictimeLength = lyrictime.length //获取歌词数组的长度
-                  //判断音频播放以后执行
-                  if (!that.$refs.myaudio.paused) {
-                    that.stop = setInterval(() => {
-                      //判断音频暂停再播放以后才能进入if
-                      if (that.playpause) {
-                        //判断歌词滚动完成则不允许进入
-                        if (iValue < lyrictimeLength) {
-                          //判断播放时间到了就往上滚动
-                          if (that.$refs.myaudio.currentTime > lyrictime[iValue].time) {
-                            ++iValue
-                            that.transform = that.transform - 28
-                            console.log(that.transform)
-                            that.transform3d = {
-                              'transform': `translate3d(0px, ${that.transform}px, 0px)`
-                            }
-                          }
-                        }
-                        //判断播放完成就播放下一集
-                        if (that.$refs.myaudio.ended) {
-                          console.log('本集播放完成')
-                          that.playpause = false
-                          that.$refs.myaudio.pause()
-                          clearInterval(that.stop) //播放完成 清除定时器
-
-                          console.log('即将播放下一首')
-
-                          //判断是否有下一首
-                          if (that.autoplayIndex < currentcdlist.length - 1) {
-                            that.autoplayIndex = parseInt(that.autoplayIndex) + 1
-                            //调用下一首
-                            that.clickPlay(currentcdlist[that.autoplayIndex].songmid, false, currentcdlist[that.autoplayIndex].songname, currentcdlist[that.autoplayIndex].songid)
-                          } else {
-                            that.$Toast({
-                              message: '歌曲播放完成啦',
-                              duration: 3500
-                            })
-                          }
-                        }
-                      }
-                    }, 20)
-                  }
-                } else if (data.code == NO_LYRIC) {
-                  clearInterval(that.stop)
-                  that.playpause = false  //显示暂停，重新选曲
-
-                  let li = $('.gedan_list>li')
-                  $(li).removeClass('current')
-
-                  $(li).eq(that.autoplayIndex).addClass('current')
-
-
-                  that.transition = {
-                    'transition': 'all 0 ease 0'
-                  }
-                  // that.transform = 28 //记录滚动距离
-
-                  //我做了限制  歌词拿到 才能播放
-                  // 记录下来，为了播放完成以后重新播放使用
-                  that.recodemid = mid
-                  that.recodeflag = flag
-                  that.recodetitle = title
-                  that.recodemusicid = musicid
-
-                  //歌词时间存进data
-                  that.arrLyric = [{
-                    time: '该歌曲暂无歌词',
-                    lyric: '该歌曲暂无歌词'
-                  }]
-
-                  //设置播放滚动特效
-                  that.transition = {
-                    'transition': 'transform 0.3s ease-out 0s'
-                  }
-
-                  let iValue = that.iValue = 0	//记录下标
-
-
-                  that.title = title //当前点击的歌曲名称
-                  that.$refs.myaudio.play()//音频开始播放
-                  that.playing = true //显示播放容器
-                  that.playpause = true //显示播放按钮
-                  that.$Indicator.close()
-
-                  //判断音频播放以后执行
-                  if (!that.$refs.myaudio.paused) {
-                    that.stop = setInterval(() => {
-                      //判断音频暂停再播放以后才能进入if
-                      if (that.playpause) {
-                        //判断播放完成就播放下一集
-                        if (that.$refs.myaudio.ended) {
-                          console.log('本集播放完成')
-                          that.playpause = false
-                          that.$refs.myaudio.pause()
-                          clearInterval(that.stop) //播放完成 清除定时器
-
-                          console.log('即将播放下一首')
-
-                          //判断是否有下一首
-                          if (that.autoplayIndex < currentcdlist.length - 1) {
-                            that.autoplayIndex = parseInt(that.autoplayIndex) + 1
-                            //调用下一首
-                            that.clickPlay(currentcdlist[that.autoplayIndex].musicData.songmid, currentcdlist[0].isnew == 0 && currentcdlist[0].musicData.alertid == 0, currentcdlist[that.autoplayIndex].musicData.songname, currentcdlist[that.autoplayIndex].musicData.songid)
-                          } else {
-                            that.$Toast({
-                              message: '歌曲播放完成啦',
-                              duration: 3500
-                            })
-                          }
-                        }
-                      }
-                    }, 20)
-                  }
-
-                }
-              }
-            })
-          }
-
-          setTimeout(() => {
-            that.$Indicator.close()
-          }, 3000)
-        } else {
-          that.$Toast({
-            message: '此歌需要登录后才能播放,你别找啦,我这里可是没有登录入口的哦',
-            duration: 3500
           })
         }
 
-      },
-      gotoRecomment() {
-        this.$router.push({
-          path: '/recomment'
+        setTimeout(() => {
+          that.$Indicator.close()
+        }, 3000)
+      } else {
+        that.$Toast({
+          message: '此歌需要登录后才能播放,你别找啦,我这里可是没有登录入口的哦',
+          duration: 3500
         })
-      },
-      //时间转秒函数(用于歌词时间转秒)自主开发
-      timeTmm(arrTime) {
-        let tempArrTime = []
-        for (let i in arrTime) {
-          let splitArr = arrTime[i].match(/\d+/ig)
+      }
 
-          let storage = parseFloat(parseFloat(splitArr[0]) * 60000 + parseInt(splitArr[1] + splitArr[2] + '0')) / 1000
+    },
+    gotoRecomment() {
+      this.$router.push({
+        path: '/recomment'
+      })
+    },
+    //时间转秒函数(用于歌词时间转秒)自主开发
+    timeTmm(arrTime) {
+      let tempArrTime = []
+      for (let i in arrTime) {
+        let splitArr = arrTime[i].match(/\d+/ig)
 
-          tempArrTime.push(storage)
-        }
-        return tempArrTime
-      },
-      //播放暂停
-      playpauseFun() {
-        let that = this
-        let myAudio = that.$refs.myaudio
-        let iValue = that.iValue
+        let storage = parseFloat(parseFloat(splitArr[0]) * 60000 + parseInt(splitArr[1] + splitArr[2] + '0')) / 1000
 
-        //判断是否播放完成
-        if (that.$refs.myaudio.ended) {
-          that.transform = 0
-          that.clickPlay(that.recodemid, that.recodeflag, that.recodetitle, that.recodemusicid)
-          that.playpause = true
+        tempArrTime.push(storage)
+      }
+      return tempArrTime
+    },
+    //播放暂停
+    playpauseFun() {
+      let that = this
+      let myAudio = that.$refs.myaudio
+      let iValue = that.iValue
+
+      //判断是否播放完成
+      if (that.$refs.myaudio.ended) {
+        that.transform = 0
+        that.clickPlay(that.recodemid, that.recodeflag, that.recodetitle, that.recodemusicid)
+        that.playpause = true
+      } else {
+        if (!myAudio.paused) {
+          that.playpause = false
+          myAudio.pause()
         } else {
-          if (!myAudio.paused) {
-            that.playpause = false
-            myAudio.pause()
-          } else {
-            that.playpause = true
-            myAudio.play()
-          }
+          that.playpause = true
+          myAudio.play()
         }
-      },
-      downloadFun() {
-        this.$Toast('没有下载权限')
-      },
-      //人数转换 ==>  万 亿
-      tranFormat(num) {
-        let newsnum = num + ''
-        let numlength = newsnum.length
-        let numArr = []
-        let newsnum2 = []
+      }
+    },
+    downloadFun() {
+      this.$Toast('没有下载权限')
+    },
+    //人数转换 ==>  万 亿
+    tranFormat(num) {
+      let newsnum = num + ''
+      let numlength = newsnum.length
+      let numArr = []
+      let newsnum2 = []
 
-        let returnNum = ''
-        if (numlength <= 4) {
-          return newsnum
-        } else if (numlength >= 5 && numlength <= 8) {
-          for (let i in newsnum) {
-            numArr.push(newsnum[i])
-          }
-          let reverseArr = numArr.reverse()
-          for (let i in reverseArr) {
-            if (i == 3) {
-              newsnum2.push('.' + reverseArr[i] + '万')
-            } else if (i >= 4) {
-              newsnum2.push(reverseArr[i])
-            }
-          }
-          let newsnum3 = newsnum2.reverse()
-          for (let i in newsnum3) {
-            returnNum += newsnum3[i]
-          }
-          return returnNum;
-        } else if (numlength >= 9) {
-          for (let i in newsnum) {
-            numArr.push(newsnum[i])
-          }
-          let reverseArr = numArr.reverse()
-          for (let i in reverseArr) {
-            if (i == 7) {
-              newsnum2.push('.' + reverseArr[i] + '亿')
-            } else if (i >= 8) {
-              newsnum2.push(reverseArr[i])
-            }
-          }
-          let newsnum3 = newsnum2.reverse()
-          for (let i in newsnum3) {
-            returnNum += newsnum3[i]
-          }
-          return returnNum;
+      let returnNum = ''
+      if (numlength <= 4) {
+        return newsnum
+      } else if (numlength >= 5 && numlength <= 8) {
+        for (let i in newsnum) {
+          numArr.push(newsnum[i])
         }
+        let reverseArr = numArr.reverse()
+        for (let i in reverseArr) {
+          if (i == 3) {
+            newsnum2.push('.' + reverseArr[i] + '万')
+          } else if (i >= 4) {
+            newsnum2.push(reverseArr[i])
+          }
+        }
+        let newsnum3 = newsnum2.reverse()
+        for (let i in newsnum3) {
+          returnNum += newsnum3[i]
+        }
+        return returnNum;
+      } else if (numlength >= 9) {
+        for (let i in newsnum) {
+          numArr.push(newsnum[i])
+        }
+        let reverseArr = numArr.reverse()
+        for (let i in reverseArr) {
+          if (i == 7) {
+            newsnum2.push('.' + reverseArr[i] + '亿')
+          } else if (i >= 8) {
+            newsnum2.push(reverseArr[i])
+          }
+        }
+        let newsnum3 = newsnum2.reverse()
+        for (let i in newsnum3) {
+          returnNum += newsnum3[i]
+        }
+        return returnNum;
       }
     }
   }
+}
 </script>
 <style scoped>
   .no_found {
