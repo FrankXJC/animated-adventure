@@ -3,6 +3,6 @@ import copyrightrohlin from '@/components/copyright/copyright'
 
 export default{
 	install:(Vue)=>{
-		Vue.component('copyright-rohlin',copyrightrohlin)
-	}
+    let component = Vue.component('copyright-rohlin',copyrightrohlin);
+  }
 }
